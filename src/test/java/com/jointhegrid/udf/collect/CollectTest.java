@@ -53,6 +53,10 @@ public class CollectTest extends HiveTestService {
     List<String> expected = Arrays.asList("[\"twelve\",\"eleven\"]");
     assertEquals(expected, client.fetchAll());
 
+    client.execute("SELECT concat_ws( ',' , collect(str)) FROM collecttest");
+    expected = Arrays.asList("twelve,eleven");
+    assertEquals(expected, client.fetchAll());
+
 
     client.execute("drop table collecttest");
   }

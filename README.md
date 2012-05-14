@@ -20,3 +20,6 @@ hive-collect
     List<String> expected = Arrays.asList("[\"twelve\",\"eleven\"]");
     assertEquals(expected, client.fetchAll());
 
+    client.execute("SELECT concat_ws( ',' , collect(str)) FROM collecttest");
+    expected = Arrays.asList("twelve,eleven");
+    assertEquals(expected, client.fetchAll());
