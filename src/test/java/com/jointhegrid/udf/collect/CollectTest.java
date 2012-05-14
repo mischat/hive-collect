@@ -57,6 +57,9 @@ public class CollectTest extends HiveTestService {
     expected = Arrays.asList("twelve,eleven");
     assertEquals(expected, client.fetchAll());
 
+    client.execute("SELECT str, concat_ws( ',' , collect( cast(countVal as string))) FROM collecttest GROUP BY str");
+    expected = Arrays.asList("eleven\t11,10", "twelve\t12,1");
+    assertEquals(expected, client.fetchAll());
 
     client.execute("drop table collecttest");
   }
