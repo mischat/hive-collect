@@ -50,11 +50,11 @@ public class CollectTest extends HiveTestService {
     client.execute("load data local inpath '" + p.toString() + "' into table collecttest");
 
     client.execute("select collect(str) FROM collecttest");
-    List<String> expected = Arrays.asList("[\"twelve\",\"eleven\"]");
+    List<String> expected = Arrays.asList("[\"twelve\",\"twelve\",\"eleven\",\"eleven\"]");
     assertEquals(expected, client.fetchAll());
 
     client.execute("SELECT concat_ws( ',' , collect(str)) FROM collecttest");
-    expected = Arrays.asList("twelve,eleven");
+    expected = Arrays.asList("twelve,twelve,eleven,eleven");
     assertEquals(expected, client.fetchAll());
 
     client.execute("SELECT str, concat_ws( ',' , collect( cast(countVal as string))) FROM collecttest GROUP BY str");

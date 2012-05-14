@@ -157,8 +157,6 @@ public class GenericUDAFCollect extends AbstractGenericUDAFResolver {
     }
 
     private void putIntoList(Object p, MkArrayAggregationBuffer myagg) {
-      if (myagg.container.contains(p))
-        return;
       Object pCopy = ObjectInspectorUtils.copyToStandardObject(p,this.inputOI);
       myagg.container.add(pCopy);
     }
