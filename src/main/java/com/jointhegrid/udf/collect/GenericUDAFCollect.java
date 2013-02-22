@@ -16,9 +16,7 @@ limitations under the License.
 package com.jointhegrid.udf.collect;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,12 +25,10 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
-import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFCollectSet.GenericUDAFMkSetEvaluator;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils;
-import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 
@@ -53,19 +49,13 @@ public class GenericUDAFCollect extends AbstractGenericUDAFResolver {
           "Exactly one argument is expected.");
     }
 
-    if (parameters[0].getCategory() != ObjectInspector.Category.PRIMITIVE) {
-      throw new UDFArgumentTypeException(0,
-          "Only primitive type arguments are accepted but "
-          + parameters[0].getTypeName() + " was passed as parameter 1.");
-    }
-
     return new GenericUDAFMkListEvaluator();
   }
 
    public static class GenericUDAFMkListEvaluator extends GenericUDAFEvaluator {
 
     // For PARTIAL1 and COMPLETE: ObjectInspectors for original data
-    private PrimitiveObjectInspector inputOI;
+    private ObjectInspector inputOI;
     // For PARTIAL2 and FINAL: ObjectInspectors for partial aggregations (list
     // of objs)
     private StandardListObjectInspector loi;
@@ -79,20 +69,20 @@ public class GenericUDAFCollect extends AbstractGenericUDAFResolver {
       // init output object inspectors
       // The output of a partial aggregation is a list
       if (m == Mode.PARTIAL1) {
-        inputOI = (PrimitiveObjectInspector) parameters[0];
+        inputOI = (ObjectInspector) parameters[0];
         return ObjectInspectorFactory
-            .getStandardListObjectInspector((PrimitiveObjectInspector) ObjectInspectorUtils
+            .getStandardListObjectInspector((ObjectInspector) ObjectInspectorUtils
                 .getStandardObjectInspector(inputOI));
       } else {
         if (!(parameters[0] instanceof StandardListObjectInspector)) {
           //no map aggregation.
-          inputOI = (PrimitiveObjectInspector)  ObjectInspectorUtils
+          inputOI = (ObjectInspector)  ObjectInspectorUtils
           .getStandardObjectInspector(parameters[0]);
           return (StandardListObjectInspector) ObjectInspectorFactory
               .getStandardListObjectInspector(inputOI);
         } else {
           internalMergeOI = (StandardListObjectInspector) parameters[0];
-          inputOI = (PrimitiveObjectInspector) internalMergeOI.getListElementObjectInspector();
+          inputOI = (ObjectInspector) internalMergeOI.getListElementObjectInspector();
           loi = (StandardListObjectInspector) ObjectInspectorUtils
                   .getStandardObjectInspector(internalMergeOI);
           return loi;
@@ -138,6 +128,7 @@ public class GenericUDAFCollect extends AbstractGenericUDAFResolver {
       return ret;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void merge(AggregationBuffer agg, Object partial)
         throws HiveException {
